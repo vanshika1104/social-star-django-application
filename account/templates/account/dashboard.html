@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <style media="screen">
+    #action-list {
+        position: absolute;
+        top: 165px;
+        left: 865px;
+        width: 380px;
+        background-image: url(https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/IjFi-wx/moving-stars-on-black-black-background_v15aai_9__F0000.png);
+        color: #d1dfea;
+        padding-left: 10px;
+      }
+    </style>
+    <h1>Dashboard</h1>
+    {% with total_images_created=request.user.images_created.count %}
+        <p>Welcome to your dashboard. <br>
+          You have bookmarked {{ total_images_created }} image{{ total_images_created|pluralize }}.</p>
+    {% endwith %}
+    <p>Drag the button to your bookmarks toolbar to bookmark images from other websites <br> <a href="javascript:{% include "bookmarklet_launcher.js" %}" class="button">Bookmark it!</a><p>
+    <div id="action-list">
+      <h2 style="color:#f0f5d9">What's happening</h2>
+        {% for action in actions %}
+            {% include "actions/action/detail.html" %}
+        {% endfor %}
+    </div>
+{% endblock %}

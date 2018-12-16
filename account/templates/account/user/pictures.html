@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}
+  {{ user.get_full_name }}
+{% endblock %}
+
+{% block content %}
+  <h1>{{ user.get_full_name }}</h1>
+  <div class="profile-info">
+    {% thumbnail user.profile.photo "260x260" crop="100%" as im %}
+      <img src="{{ im.url }}">
+    {% endthumbnail %}
+    <p><b><a href="http://127.0.0.1:8000/images/upload/">Upload Picture</a></b></p>
+  </div>
+  <div id="image-list" class="image-container">
+      {% include "images/image/list_ajax.html" with images=user.images_created.all %}
+  </div>
+{% endblock %}

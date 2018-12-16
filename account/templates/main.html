@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}HOME{% endblock %}
+
+{% block content %}
+<style media="screen">
+* {
+margin: 0;
+padding: 0;
+}
+h1{
+border-bottom: 0px;
+}
+p{
+  color: white;
+}
+.container{
+  text-align: center;
+}
+</style>
+<div class="stars"><div class="twinkling">
+  <div class="container">
+    <h1>SOCIAL STAR</h1>
+    <p>An innovative platform to share your images!</p>
+    <p><a href="{% url 'login' %}">Login here</a></p>
+    <p>----------------------------or------------------------------</p>
+    <p><a href="{% url 'register' %}">Sign-up</a></p>
+  </div>
+</div>
+</div>
+{% endblock %}

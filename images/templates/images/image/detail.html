@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% block title %}{{ image.title }}{% endblock %}
+
+{% block content %}
+  <div class="main">
+    <h1 class="title">{{ image.title }}</h1>
+    {% thumbnail image.image "300" as im %}
+        <a href="{{ image.image.url }}">
+            <img src="{{ im.url }}" class="image-detail">
+        </a>
+    {% endthumbnail %}
+    {% with total_likes=image.users_like.count users_like=image.users_like.all %}
+                <div>
+                    <span class="count">
+                        <span class="total">{{ total_likes }}</span>
+                        like{{ total_likes|pluralize }}
+                    </span>
+                    <a href="#" data-id="{{ image.id }}" data-action="{% if request.user in users_like %}un{% endif %}like" class="like button">
+                        {% if request.user not in users_like %}
+                            Like
+                        {% else %}
+                            Unlike
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="image-info">
+                  <div style="padding:10px 20px 0px">
+                    {{ image.description|linebreaks }}
+                  </div>
+                  <div class="image-likes" >
+                    {% for user in image.users_like.all %}
+                      {% if forloop.counter < 6 %}
+                        <div>
+                          <img src="{{ user.profile.photo.url }}">
+                          <p>{{ user.first_name }}</p>
+                        </div>
+                      {% else %}
+                        <button onclick="allLikes()" type="button" class="more_likes">and {{ limit }} more></button>
+                      {% endif %}
+                      {% empty %}
+                        Nobody likes this image yet.
+
+                    {% endfor %}
+
+                  </div>
+                </div>
+    {% endwith %}
+    <br><br>
+    <div class="comments">
+      <div style="float:right">
+        {% if new_comment %}
+          <h2>Your comment has been added.</h2>
+        {% else %}
+          <h2>Add a new comment.</h2>
+          <form action="." method="post">
+            {{ comment_form.as_p }}
+            {% csrf_token %}
+            <p><input type="submit" value="Add comment"></p>
+          </form>
+        {% endif %}
+      </div>
+      {% with comments.count as total_comments %}
+        <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
+      {% endwith %}
+
+      {% for comment in comments %}
+        <span>  <strong>{{ comment.created }} {{ comment.name }}:</strong> </span>
+        {{ comment.body }}
+        <br><br>
+        {% empty %}
+          <p>There are no comments yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+    <div class="image-info">
+      <div class="image-likes">
+        <div class="all_likes">
+          {% for user in image.users_like.all %}
+          <span class="inline">
+            <img src="{{ user.profile.photo.url }}" class="users">
+            <p style="display:block">{{ user.first_name }}</p>
+          </span>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    <script>
+      function showLikes(){
+        x =$('.all_likes');
+        y=$('.main');
+        x.css('display','flex');
+        x.css('background-color','rgb(255, 255, 255)')
+        y.css('background-color','rgba(12, 12, 12, 0.9)')
+        $('#content').css('padding','0px');
+        $('.comments').css('display','none');
+        $('.like').css('display','none');
+        $('.title').css('color','rgb(255, 255, 255)');
+        $('.more_likes').css('display','none');
+        $('.image-detail').css('filter','blur(5px)');
+        return true;
+      }
+      function closeLikes(){
+        $('.main').click(function(){
+          x.css('display','none');
+          y.css('background-color','rgb(255, 255, 255)');
+          $('#content').css('padding','30px 100px');
+          $('.comments').css('display','block');
+          $('.like').css('display','block');
+          $('.title').css('color','rgb(0, 0, 0)');
+          $('.more_likes').css('display','block');
+          $('.image-detail').css('filter','blur(0px)');
+          $('.main').off('click');
+        })
+      }
+      function allLikes(){
+        showLikes();
+        setTimeout(function(){
+          if(showLikes()){
+            closeLikes();
+          }
+        }, 500);
+      }
+    </script>
+{% endblock %}
+
+{% block domready %}
+    $('a.like').click(function(e){
+        e.preventDefault();
+        $.post('{% url "images:like" %}',
+            {
+                id: $(this).data('id'),
+                action: $(this).data('action')
+            },
+            function(data){
+                if (data['status'] == 'ok')
+                {
+                    var previous_action = $('a.like').data('action');
+                    // toggle data-action
+                    $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
+                    // toggle link text
+                    $('a.like').text(previous_action == 'like' ? 'Unlike' : 'Like');
+                    // update total likes
+                    var previous_likes = parseInt($('span.count .total').text());
+                    $('span.count .total').text(previous_action == 'like' ? previous_likes + 1 : previous_likes - 1);
+                }
+        });
+          location.reload();
+    });
+{% endblock %}

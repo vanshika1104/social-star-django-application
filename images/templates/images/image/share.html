@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}
+  Share this image
+{% endblock %}
+
+{% block content %}
+  {% if sent %}
+    <h1>Image shared successfully</h1>
+  {% else %}
+    <h1>Share "{{ image.title }}" by email</h1>
+    <form action="." method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit" value="Share">
+    </form>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}
+  {{ user.get_full_name }}
+{% endblock %}
+
+{% block content %}
+  <h1>{{ user.get_full_name }}</h1>
+  <div class="profile-info">
+    {% thumbnail user.profile.photo "260x260" crop="100%" as im %}
+      <img src="{{ im.url }}" class="profile_picture">
+    {% endthumbnail %}
+  </div>
+<style>
+  .count{
+    color:rgb(19, 181, 57);
+    border-color:rgb(26, 155, 56);
+    position: absolute;
+    left:1100px;
+    top:130px;
+    background-color: inherit;
+    font-weight: bold;
+    outline: none;
+  }
+
+  .followers{
+    display: none;
+    max-height: 700px;
+    max-width: 700px;
+    padding-top: 50px;
+  }
+  .following{
+    display: none;
+    max-height: 700px;
+    max-width: 700px;
+    padding-top: 50px;
+  }
+  .info{
+    font-size: 14px;
+        width: 125px;
+  }
+  #people-list img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 0px;
+  }
+  #people-list .user {
+    width: 120px;
+  }
+</style>
+<div class="profile">
+      <p><b>Username:      </b>{{ user.username }}</p>
+      <p><b>Email address: </b>{{ user.email }}</p>
+      {% if profile.date_of_birth %}
+        <p><b>DOB:           </b>{{ profile.date_of_birth }}</p>
+      {% endif %}
+      {% if profile.bio %}
+        <p><b>About:         </b>{{ profile.bio }}</p>
+      {% endif %}
+</div>
+<p><a href="{% url 'edit' %}">Edit profile</a></p>
+{% with total_followers=user.followers.count %}
+        <button class="count" onclick="showFollowers('.followers')" id ="follower">
+            <span class="total">{{ total_followers }}
+            follower{{ total_followers|pluralize }}</span>
+        </button>
+    {% endwith %}
+    {% with total_following=user.following.count %}
+      <button class="count" id="following" onclick="showFollowing('.following')">
+        <span class="total">Following {{ total_following }} people</span>
+      </button>
+    {% endwith %}
+    <div class="followers">
+      <div id="people-list">
+        <p style="text-align:center">Followers</p>
+        {% for user in user.followers.all %}
+          <div class="user">
+            <a href="{{ user.get_absolute_url }}">
+              {% thumbnail user.profile.photo "260x260" crop="20%" as im %}
+                <img src="{{ im.url }}" >
+              {% endthumbnail %}
+            </a>
+            <div class="info">
+              <a href="{{ user.get_absolute_url }}" class="title">{{ user.get_full_name }}</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="following">
+      <div id="people-list">
+        <p style="text-align:center">Following</p>
+        {% for user in user.following.all %}
+          <div class="user">
+            <a href="{{ user.get_absolute_url }}">
+              {% thumbnail user.profile.photo "260x260" crop="20%" as im %}
+                <img src="{{ im.url }}" >
+              {% endthumbnail %}
+            </a>
+            <div class="info">
+              <a href="{{ user.get_absolute_url }}" class="title">{{ user.get_full_name }}</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <script>
+      function show(j){
+        $(j).css('display','flex');
+        $('.profile').css('display','none');
+        $('.profile_picture').css('filter','blur(5px)');
+      }
+      function close(j) {
+        $(j).css('display','none');
+        $('.profile').css('display','block');
+        $('.profile_picture').css('filter','blur(0px)');
+      }
+      clickfo = 0;
+      clickfi = 0;
+      function showFollowers(i){
+        clickfo+=1
+
+        if(clickfo%2==1){
+          if (clickfi%2==1){
+            showFollowing(".following")
+          }
+          show(i);
+        }
+        else if(clickfo%2==0){
+          close(i);
+        }
+      }
+      function showFollowing(k){
+        clickfi+=1
+
+        if(clickfi%2==1){
+          if (clickfo%2==1){
+            showFollowers(".followers")
+          }
+          show(k);
+        }
+        else if(clickfi%2==0){
+          close(k);
+        }
+      }
+    </script>
+{% endblock %}
