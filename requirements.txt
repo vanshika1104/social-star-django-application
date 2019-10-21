@@ -51,7 +51,7 @@ mpmath==1.0.0
 msgpack-python==0.5.6
 multipledispatch==0.5.0
 networkx==2.1
-nltk==3.3
+nltk==3.4.5
 numpy==1.14.3
 oauthlib==2.1.0
 olefile==0.45.1
